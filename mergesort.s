@@ -1,5 +1,5 @@
-.extern prints, fgets, case_sensitive_comp, array1 , array2
-.global dist1 , dups1 , backtomergesort
+.extern prints, fgets, case_sensitive_comp, array1 , array2, buffermem3 , array1
+.global dist1 , dups1 , backtomergesort , backtomergesort1
 .text 
 
 
@@ -131,14 +131,48 @@ returnelement :
 
     
                 
-dist1 :   
+dist1 :     
+                            stmfd sp! , {r0 -r10, lr}
+                            
+                            bl dups1                    //we first do normal merge sort
+                            // now array1 has sorted elements but contains duplicates
+                            // now we simply remove the duplicates
+                            // I will use my merge operation(merge distinct) to remove the duplicates
+                            ldr r3, = array1
+                          
+                            mov r10 , #0
+
+                            bl merge_them_dist
+backtomergesort1:           // now buffermem3 has the sorted array with distinct 
+                            ldr r3 , =array1
+                            ldr r4 , =buffermem3
+                            ldr r1 , [r4] , #4
+                            mov r2 , #0
+loop3:                      cmp r2 , r11 
+                            beq finish                              
+                            add r2 , #1 
+                            str r1 , [r3] , #4
+                            ldr r1,[r4] , #4
+                            bl loop3
+
+
+@  l:                 cmp r9 , r11
+@                     beq exit_l
+@                     add r9 , #1 
+@                     str r7 , [R3] ,#4
+@                     ldr r7 , [r8] , #4  
+@                     bl l
+
+finish:                     ldmfd sp! , {r0 -r10, pc}
+
+
 
 
 
 .data 
 
 
-
+emptyspace : .space 200
 
 
 .end

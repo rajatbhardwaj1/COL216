@@ -1,5 +1,5 @@
 .extern prints, fgets, case_sensitive_comp, array1 , array2
-.global case_sensitive, case_insensitive ,merge_them , dist1
+.global case_sensitive, case_insensitive ,merge_them , dist1,merge_them_dist
 .text 
 @r6 and r10 has length of string 1 and string 2 
 
@@ -134,24 +134,19 @@ exitfunction :      mov r0 , #0x18
 
     
 @ for distint list 
-dist1:          mov r11 , #0 
+merge_them_dist:     mov r11 , #0 
                 
    @r1 has pointer to the first string 
     @r2 has pointer to the second string
                 
-                ldr r3,= array1
-                ldr r4 ,= array2
-                ldr r1 , [r3],#4        @r3 and r4 has pointer to the next string always
+                
+                    ldr r1 , [r3],#4        @r3 and r4 has pointer to the next string always
 
-                ldr r2 , [r4],#4
-                ldr r8 , = buffermem3      @r8 has pointer to the answer array strings
+                    ldr r2 , [r4],#4
+                    ldr r8 , = buffermem3      @r8 has pointer to the answer array strings
 
 
-loop2:              cmp r6 , #0
-                        beq list1finished1
-                    cmp r10 , #0
-                    beq string2isgreater1
-                        cmp r7 , #1
+loop2:              cmp r7 , #1
                     bne j1 
                     bl case_insensitive_comp
                     bl j2           
@@ -171,32 +166,29 @@ loop2:              cmp r6 , #0
                     cmp r5 , #4
                     beq string2isgreater1
 
-                    bl endfunction
+                    bl backtomergesort1
 
 
                     
-list1finished1 :        
-                        cmp r10 , #0 
-                        beq endfunction
-                        bl string1isgreater1
 
-string1isgreater1 : mov r9 , r1     
-                        sub r10 , #1         
-                    
-                    ldr r1 , [r8 , #-4]
+
+string1isgreater1 : mov r9 , r1             @check if string 2 and 
+                    sub r10  , r8 , #4
+                    ldr r1 , [r10]
                     cmp r7 ,#1
                     bne f1
                     bl case_insensitive_comp
                     bl f2
 f1 :                bl case_sensitive_comp 
-f2:                 mov r1 , r9 @now comparing r2 and the previously stored string
+f2:                 mov r1 , r9 
                     cmp r5 , #2
                     beq h1
-                    add r11 , #1 
                     str r2 , [r8] , #4
+                    add r11 , #1
+                   
 h1:                 ldr r2 , [r4] , #4
-                    
-                    
+                    @now comparing r2 and the previously stored string
+                    @
                     bl loop2
 
 
@@ -204,21 +196,20 @@ h1:                 ldr r2 , [r4] , #4
 
                     
 string2isgreater1:  mov r9 , r2 
-                    sub r6 , #1
-                    ldr r2 , [r8 , #-4]
+                    sub r10 , r8 , #4
+                    ldr r2 , [r10]
                     cmp r7 , #1
                     bne k1
                     bl case_insensitive_comp    @here checking if the last string in our answe is equal to the new string to be inserted
                     bl k2
  k1:                bl case_sensitive_comp
-k2:                 mov r2 , r9
+  k2:               mov r2 , r9
                     cmp r5 ,#2
                     beq h2
-                    add r11 , #1 
                     str r1 , [r8] , #4
+                     add r11 , #1
 h2 :                ldr r1 , [r3],#4         @if the string is already present in the ans then dont store the string and simpy increment r3 to next string location 
                     bl loop2
-
 
 
 
